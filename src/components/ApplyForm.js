@@ -176,7 +176,6 @@ export default function DoctorForm() {
           )}
         />
 
-        <UploadImg />
 
         <Button type="submit">Submit</Button>
       </form>
