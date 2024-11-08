@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select"; // Shadcn select component
 import { DatePicker } from "@/components/DatePicker/page"; // Shadcn datepicker component
-import UploadImg from "./UploadImage";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }).max(50),
