@@ -11,9 +11,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { auth } from "../../auth";
 
-export default function Header() {
-  const session = {name:"kashif"};
+export default async function Header() {
+  const session = await auth();
+console.log("session in header=>",session)
   return (
     <div>
         <div className="flex container mx-auto justify-between px-10 p-3">
