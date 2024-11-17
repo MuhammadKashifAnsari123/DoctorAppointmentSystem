@@ -1,20 +1,35 @@
 import connectDB from "@/lib/connectDB";
-import { UserModal } from "@/lib/models/UserModal";
+import { RequestModal } from "@/lib/models/RequestModal";
 
 
 export async function POST(req) {
     await connectDB();
     try {
       const obj = await req.json();
+
+
+      const isUserRequestesBefore = await RequestModal.findOne({
+        user:obj.user,
+      });
+
+      if(isUserRequestesBefore){
+        return Response.json(
+          {
+            error: true,
+            msg: "You had already applied as a doctor",
+          },
+          { status: 400 }
+        );   
+      }
   
-      let newUser = await new UserModal({ ...obj });
-      newUser = await newUser.save();
+      let newRequest = await new RequestModal({ ...obj });
+      newRequest = await newRequest.save();
   
       return Response.json(
         {
           error: false,
-          msg: "User Registered Successfully",
-          user: newUser,
+          msg: "Request Registered Successfully",
+          request: newRequest,
         },
         { status: 201 }
       );
@@ -31,10 +46,10 @@ export async function POST(req) {
 
 export async function GET(req){
     await connectDB();
-    const users = await UserModal.find();
+    const requests = await RequestModal.find();
     return Response.json({
         error:false,
-        msg: "User fetch Successfully",
+        msg: "Requests fetch Successfully",
         users,
     }, {status: 200});
 }     

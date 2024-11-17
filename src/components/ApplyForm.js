@@ -17,167 +17,207 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select"; // Shadcn select component
-import { DatePicker } from "@/components/DatePicker/page"; // Shadcn datepicker component
+import { addRequest } from "@/action/request";
+import { useToast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }).max(50),
   bio: z.string().min(2).max(120),
   hospital: z.string().min(2).max(50),
-  days: z.array(z.string()).min(1, { message: "Please select at least one day" }),
   fees: z.string(),
   gender: z.enum(["Male", "Female", "Other"]),
-  appointmentTime: z.date(),
+  appointmentTime: z.string(),
   degree: z.string(),
   specialization: z.string(),
   experience: z.string(),
   number: z.string(),
-  email: z.string().email(),
   address: z.string(),
 });
 
-export default function DoctorForm() {
+export default function DoctorForm({session}) {
+  const { toast } = useToast()
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
       bio: "",
       hospital: "",
-      days: [],
       fees: "",
       gender: "",
-      appointmentTime: null,
+      appointmentTime: "",
       degree: "",
       specialization: "",
       experience: "",
-      profileImg: "",
       number: "",
-      email: "",
       address: "",
     },
   });
 
-  const onSubmit = (values) => {
+async function onSubmit(values) {
     console.log(values);
+    values.user = session.user._id;
+    const response = await addRequest(values);
+    console.log("response",response)
+    if(response.error) {
+      form.reset();
+    toast({
+      title: "Sorry, Your application cannot be submitted.",
+      description: response.msg,
+    })
+    } else{
+     form.reset();
+    toast({
+      title: "Your Application Is Submitted",
+      description: "You Will Be Informed by Email in 3 Bussiness days",
+    })
+    }  
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-2 gap-5">
-          {/* Name Field */}
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter your name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Gender Dropdown */}
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Gender</FormLabel>
-                <FormControl>
-                  <Select {...field}>
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Days Multi-Select */}
-          <FormField
-            control={form.control}
-            name="days"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Available Days</FormLabel>
-                <FormControl>
-                  <Select multiple {...field}>
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Appointment Time with Shadcn Date Picker */}
-          <FormField
-            control={form.control}
-            name="appointmentTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Appointment Time</FormLabel>
-                <FormControl>
-                  <DatePicker
-                    placeholder="Select date and time"
-                    showTimeSelect
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Degree Field */}
-          <FormField
-            control={form.control}
-            name="degree"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Degree</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter degree" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Other fields like specialization, experience, etc. */}
-          {/* Add any other fields as needed */}
-        </div>
-
-        {/* Bio Field */}
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <div className="grid grid-cols-1 m-2 lg:grid-cols-2 gap-5">
         <FormField
+          name="hospital"
           control={form.control}
-          name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bio</FormLabel>
+              <FormLabel>Hospital</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter a short bio" {...field} />
+                <Input placeholder="Enter hospital name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="fees"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Fees</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter fees" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
+        <FormField
+          name="gender"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gender</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter gender" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+        <FormField
+          name="appointmentTime"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Appointment Time</FormLabel>
+              <FormControl>
+                <Input type="time" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          name="degree"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Degree</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter degree" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          name="specialization"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Specialization</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter specialization" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          name="experience"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Experience</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter years of experience" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="number"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Contact Number</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter contact number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          name="address"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Address</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter address" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <FormField
+        name="bio"
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Bio</FormLabel>
+            <FormControl>
+              <Textarea placeholder="Enter bio" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <Button type="submit">
+        {form.formState.isSubmitting ? "Loading" : "Submit"}
+      </Button>
+    </form>
+  </Form>
   );
 }

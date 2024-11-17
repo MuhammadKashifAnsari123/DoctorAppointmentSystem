@@ -4,11 +4,11 @@ import mongoose from "mongoose";
 const {Schema} = mongoose;
 
 const userSchema = new Schema({
-    firtName: String,
+    firstName: String,
     lastName: String,
     email: String,
     picture: String,
-    role: {type: String, default: "user", enum: ["users", "doctor","admin"]},
+    role: {type: String, default: "user", enum: ["user", "doctor","admin"]},
     extraInfo: {
         fees: Number,
         hospital:String,
