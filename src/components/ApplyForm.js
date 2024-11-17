@@ -53,7 +53,7 @@ export default function DoctorForm({session}) {
 
 async function onSubmit(values) {
     console.log(values);
-    values.user = session.user._id
+    values.user = session.user._id;
     const response = await addRequest(values);
     console.log("response",response)
     if(response.error) {

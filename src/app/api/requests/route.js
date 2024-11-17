@@ -6,12 +6,9 @@ export async function POST(req) {
     await connectDB();
     try {
       const obj = await req.json();
-
-
       const isUserRequestesBefore = await RequestModal.findOne({
-        user:obj.user,
+        user: obj.user,
       });
-
       if(isUserRequestesBefore){
         return Response.json(
           {
